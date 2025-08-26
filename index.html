@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Monitoramento Transamérica</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --texpo-primary: #A66641;
+  --texpo-secondary: #D9B29C;
+  --htic-primary: #00FF7F;
+  --htic-secondary: #038C3E;
+  --link-primary: #8B5CF6;
+  --link-secondary: #205373;
+  --switchs-primary: #8B5CF6;
+  --switchs-secondary: #205373;
+  --servidores-primary: #8B5CF6;
+  --servidores-secondary: #205373;
+  --background-dark: #0f0f23;
+  --background-medium: #1a1a2e;
+  --background-light: #16213e;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --card-bg: #1e293b;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --success: #10B981;
+  --danger: #EF4444;
+  --radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body { 
+  font-family: 'Poppins', Arial, sans-serif; 
+  margin: 0;
+  padding: 20px; 
+  background: linear-gradient(135deg, var(--background-dark), var(--background-medium), var(--background-light));
+  min-height: 100vh;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+h1 { 
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--texpo-primary), var(--htic-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-block;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--texpo-primary), var(--htic-primary));
+  border-radius: 2px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-weight: 300;
+  margin-top: 15px;
+}
+
+/* Container dos cards */
+#dashboard { 
+  display: flex; 
+  justify-content: center; 
+  flex-wrap: wrap; 
+  gap: 30px; 
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card por empresa */
+.empresa {
+  border-radius: var(--radius);
+  padding: 0;
+  width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.empresa:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Cabeçalho das empresas */
+.empresa-header {
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.empresa-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.empresa-TEXPO .empresa-header { 
+  background: linear-gradient(135deg, var(--texpo-primary), var(--texpo-secondary));
+}
+
+.empresa-HTIC .empresa-header { 
+  background: linear-gradient(135deg, var(--htic-primary), var(--htic-secondary));
+}
+
+.logo {
+  max-width: 280px;
+  max-height: 70px;
+  object-fit: contain;
+}
+
+.empresa-content {
+  padding: 20px;
+}
+
+.tipo { 
+  margin: 20px 0; 
+}
+
+.tipo h3 { 
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.tipo h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tipo-Link h3 {
+  background: linear-gradient(135deg, var(--link-primary), var(--link-secondary));
+}
+
+.tipo-Switchs h3 {
+  background: linear-gradient(135deg, var(--switchs-primary), var(--switchs-secondary));
+}
+
+.tipo-Servidores h3 {
+  background: linear-gradient(135deg, var(--servidores-primary), var(--servidores-secondary));
+}
+
+.device-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.dispositivo { 
+  display: flex; 
+  align-items: center; 
+  margin: 12px 0; 
+  padding: 15px; 
+  background: linear-gradient(145deg, #2d3748, #4a5568);
+  border-radius: 10px; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  border-left: 4px solid transparent;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.dispositivo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.dispositivo:hover {
+  transform: translateX(5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.dispositivo:hover::before {
+  opacity: 1;
+}
+
+.dispositivo.online {
+  border-left-color: var(--success);
+}
+
+.dispositivo.offline {
+  border-left-color: var(--danger);
+}
+
+.led-container {
+  position: relative;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.led { 
+  width: 16px; 
+  height: 16px; 
+  border-radius: 50%; 
+  position: relative;
+  z-index: 2;
+}
+
+.led::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.up { 
+  background: var(--success);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+}
+
+.up::after {
+  background: rgba(16, 185, 129, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.down { 
+  background: var(--danger);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+}
+
+.down::after {
+  background: rgba(239, 68, 68, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
+  }
+  70% {
+    width: 32px;
+    height: 32px;
+    opacity: 0;
+  }
+  100% {
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+  }
+}
+
+.nome { 
+  flex: 1; 
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.host {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.tempo { 
+  font-size: 0.85rem; 
+  color: var(--text-secondary);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 10px;
+  border-radius: 20px;
+  min-width: 70px;
+  text-align: center;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.last-check {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.footer {
+  margin-top: 40px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 15px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Responsividade */
+@media (max-width: 968px) {
+  #dashboard {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .empresa {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding: 15px;
+  }
+  
+  h1 {
+    font-size: 2.2rem;
+  }
+  
+  .empresa {
+    width: 100%;
+  }
+  
+  .logo {
+    max-width: 220px;
+  }
+  
+  .dispositivo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .led-container {
+    margin-bottom: 10px;
+  }
+  
+  .status-info {
+    align-items: flex-start;
+    margin-top: 10px;
+    width: 100%;
+  }
+}
+
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Dashboard de Monitoramento</h1>
+  <div class="subtitle">Status de Dispositivos em Tempo Real</div>
+</div>
+
+<div id="dashboard"></div>
+
+<div class="footer">
+  Monitoramento atualizado automaticamente a cada 5 segundos
+</div>
+
+<script>
+const API = "http://10.65.0.16:3000/api/ping/bulk";
+
+// === CONFIGURAÇÃO DE DISPOSITIVOS ===
+const empresas = {
+  TEXPO: {
+    Link: [ { name:"Fortegate TEXPO", host:"10.1.0.5" } ],
+    Switchs: [ { name:"Sala TI", host:"10.65.0.1" }, { name:"ADM HallC", host:"10.71.0.1" }, { name:"RH - Segurança", host:"10.72.0.1" }],
+    Servidores: [ { name:"Photon TEXPO", host:"10.1.1.100" }, { name:"Maquina da TV", host:"10.65.0.60" },{ name:"Maquina BI", host:"10.65.0.4" }]
+  },
+  HTIC: {
+    Link: [ { name:"Fortegate HTIC", host:"10.2.0.5" } ],
+    Switchs: [ { name:"Sala TI", host:"10.2.0.1" } ],
+    Servidores: [ { name:"Photon HTIC", host:"10.2.1.200" }, { name:"AD_Comandatuba", host:"10.2.1.124" } ]
+  }
+};
+// =====================================
+
+// Logotipos das empresas (substitua pelas imagens reais)
+const companyLogos = {
+  TEXPO: "./Texpo.PNG",
+  HTIC: "./HTIC.PNG"
+};
+
+let lastUpdate = new Date();
+let currentData = null;
+
+async function check() {
+  // Monta lista de todos os hosts
+  const hostsMap = [];
+  for (let emp in empresas) {
+    for (let tipo in empresas[emp]) {
+      empresas[emp][tipo].forEach(d => hostsMap.push({ ...d, empresa: emp, tipo: tipo }));
+    }
+  }
+
+  try {
+    const res = await fetch(API, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ hosts: hostsMap.map(h => h.host) })
+    });
+    const data = await res.json();
+    
+    // Só atualiza se os dados mudaram
+    if (JSON.stringify(data) !== JSON.stringify(currentData)) {
+      currentData = data;
+      updateDashboard(data);
+    }
+    
+    lastUpdate = new Date();
+  } catch (error) {
+    console.error("Erro ao buscar dados:", error);
+    if (!currentData) {
+      const container = document.getElementById("dashboard");
+      container.innerHTML = `
+        <div class="error">
+          <h3>Erro de conexão</h3>
+          <p>Não foi possível conectar ao servidor de monitoramento.</p>
+        </div>
+      `;
+    }
+  }
+}
+
+function updateDashboard(data) {
+  const container = document.getElementById("dashboard");
+  container.innerHTML = "";
+
+  for (let emp in empresas) {
+    const divEmp = document.createElement("div");
+    divEmp.className = `empresa empresa-${emp}`;
+    divEmp.innerHTML = `
+      <div class="empresa-header">
+        <img src="${companyLogos[emp]}" class="logo" alt="${emp}">
+      </div>
+      <div class="empresa-content"></div>
+    `;
+    
+    const empContent = divEmp.querySelector('.empresa-content');
+    
+    for (let tipo in empresas[emp]) {
+      const divTipo = document.createElement("div");
+      divTipo.className = `tipo tipo-${tipo}`;
+      divTipo.innerHTML = `
+        <h3 data-tipo="${tipo}">
+          <i class="${getIconForType(tipo)}"></i>
+          ${tipo}
+        </h3>
+      `;
+
+      empresas[emp][tipo].forEach(d => {
+        const result = data.results.find(r => r.host === d.host);
+        const isOnline = result && result.alive;
+        
+        const divDisp = document.createElement("div");
+        divDisp.className = `dispositivo ${isOnline ? "online" : "offline"}`;
+        divDisp.innerHTML = `
+          <div class="led-container">
+            <div class="led ${isOnline ? "up" : "down"}"></div>
+          </div>
+          <div class="device-info">
+            <div class="nome">${d.name}</div>
+            <div class="host">${d.host}</div>
+          </div>
+          <div class="status-info">
+            <div class="tempo">${isOnline ? (result.timeMs ? result.timeMs + "ms" : "Online") : "Offline"}</div>
+            <div class="last-check">${new Date().toLocaleTimeString()}</div>
+          </div>
+        `;
+        divTipo.appendChild(divDisp);
+      });
+
+      empContent.appendChild(divTipo);
+    }
+
+    container.appendChild(divEmp);
+  }
+}
+
+function getIconForType(tipo) {
+  switch(tipo) {
+    case "Link": return "fas fa-link";
+    case "Switchs": return "fas fa-network-wired";
+    case "Servidores": return "fas fa-server";
+    default: return "fas fa-desktop";
+  }
+}
+
+// Atualizar a cada 5 segundos
+setInterval(check, 5000);
+
+// Primeira execução
+check();
+
+// Atualizar o footer com a última atualização
+setInterval(() => {
+  const footer = document.querySelector('.footer');
+  if (footer) {
+    const secondsSinceUpdate = Math.floor((new Date() - lastUpdate) / 1000);
+    const secondsToUpdate = 5 - (secondsSinceUpdate % 5);
+    footer.innerHTML = `Última atualização: ${lastUpdate.toLocaleTimeString()} | Próxima atualização em ${secondsToUpdate}s`;
+  }
+}, 1000);
+</script>
+</body>
+</html>
