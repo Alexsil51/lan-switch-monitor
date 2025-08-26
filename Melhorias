@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoramento Transamérica</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  /* Paleta de cores inspirada no FortiGate/Grafana */
+  --primary-bg: #0f1419;
+  --secondary-bg: #1a1d23;
+  --card-bg: #242933;
+  --accent-bg: #2a2f3a;
+  --border-color: #3c4043;
+  --text-primary: #ffffff;
+  --text-secondary: #b8bcc8;
+  --text-muted: #8b949e;
+  
+  /* Cores de status */
+  --success: #00d4aa;
+  --success-bg: rgba(0, 212, 170, 0.1);
+  --warning: #ff9500;
+  --warning-bg: rgba(255, 149, 0, 0.1);
+  --danger: #ff5722;
+  --danger-bg: rgba(255, 87, 34, 0.1);
+  --info: #1890ff;
+  --info-bg: rgba(24, 144, 255, 0.1);
+  
+  /* Cores específicas das empresas */
+  --texpo-primary: #A66641;
+  --texpo-secondary: #D9B29C;
+  --htic-primary: #00d4aa;
+  --htic-secondary: #36cfc9;
+  
+  /* Efeitos */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  --radius: 8px;
+  --radius-lg: 12px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body { 
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+  overflow-x: hidden;
+}
+
+/* Header */
+.header {
+  background: var(--secondary-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--texpo-primary), var(--htic-primary));
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  color: var(--text-muted);
+}
+
+/* Main Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Company Cards */
+.company-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.company-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.company-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.company-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--texpo-primary), var(--htic-primary));
+}
+
+.company-TEXPO .company-header::before {
+  background: linear-gradient(90deg, var(--texpo-primary), var(--texpo-secondary));
+}
+
+.company-HTIC .company-header::before {
+  background: linear-gradient(90deg, var(--htic-primary), var(--htic-secondary));
+}
+
+.company-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.company-logo img {
+  max-width: 200px;
+  max-height: 60px;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.company-name {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.company-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+}
+
+/* Device Categories */
+.device-categories {
+  padding: 0;
+}
+
+.category {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.category:last-child {
+  border-bottom: none;
+}
+
+
+.category-header {
+  padding: 16px 24px;
+  background: var(--accent-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  gap: 16px;
+}
+
+.category-header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.category-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.category-Link .category-icon {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.category-Switchs .category-icon {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.category-Servidores .category-icon {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.category-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.stat-chip.online {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.stat-chip.offline {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* Device List */
+.device-list {
+  padding: 8px 0;
+}
+
+.device-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  transition: var(--transition);
+  border-left: 3px solid transparent;
+}
+
+.device-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.device-item.online {
+  border-left-color: var(--success);
+}
+
+.device-item.offline {
+  border-left-color: var(--danger);
+}
+
+.device-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 12px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+
+/*
+.device-status::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: pulse 2s infinite;
+}
+*/
+
+.device-status.online {
+  background: var(--success);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+}
+
+.device-status.online::after {
+  background: var(--success);
+}
+
+.device-status.offline {
+  background: var(--danger);
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.2);
+}
+
+.device-status.offline::after {
+  background: var(--danger);
+}
+
+/*
+@keyframes pulse {
+  0% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  70% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+*/
+
+/*
+.device-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.device-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+*/
+
+.device-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.device-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.device-host {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.device-metrics {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.device-latency {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.device-latency.online {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.device-latency.offline {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.device-timestamp {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Footer */
+.footer {
+  background: var(--secondary-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 16px 24px;
+  margin-top: 40px;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.footer-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  /*animation: pulse 2s infinite;*/
+}
+
+/* Loading State */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading .status-dot {
+  background: var(--warning);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .header-stats {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+  
+  .device-item {
+    padding: 12px 16px;
+  }
+  
+  .category-header {
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .device-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .device-metrics {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 8px;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-content">
+    <div class="header-title">
+      <div class="header-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div>
+        <h1>Dashboard de Monitoramento Transamérica</h1>
+        <div class="header-subtitle">Status de Dispositivos em Tempo Real</div>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item">
+        <div class="stat-value" id="total-devices">0</div>
+        <div class="stat-label">Dispositivos</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="online-devices">0</div>
+        <div class="stat-label">Online</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="offline-devices">0</div>
+        <div class="stat-label">Offline</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div id="dashboard" class="dashboard-grid"></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-status">
+      <div class="status-dot"></div>
+      <span id="footer-text">Monitoramento ativo</span>
+    </div>
+    <div id="last-update">Carregando...</div>
+  </div>
+</footer>
+
+<script>
+const API = "http://10.65.0.16:3000/api/ping/bulk";
+
+// === CONFIGURAÇÃO DE DISPOSITIVOS ===
+const empresas = {
+  TEXPO: {
+    Link: [ { name:"Fortegate TEXPO", host:"10.1.0.5" } ],
+    Switchs: [ { name:"Sala TI", host:"10.65.0.1" }, { name:"ADM HallC", host:"10.71.0.1" }, { name:"RH - Segurança", host:"10.72.0.1" }],
+    Servidores: [ { name:"Photon TEXPO", host:"10.1.1.100" }, { name:"Maquina da TV", host:"10.65.0.60" },{ name:"Maquina BI", host:"10.65.0.4" }]
+  },
+  HTIC: {
+    Link: [ { name:"Fortegate HTIC", host:"10.2.0.5" } ],
+    Switchs: [ { name:"Sala TI", host:"10.2.0.1" } ],
+    Servidores: [ { name:"Photon HTIC", host:"10.2.1.200" }, { name:"AD_Comandatuba", host:"10.2.1.124" } ]
+  }
+};
+
+// URLs das imagens dos dispositivos
+const deviceImages = {
+  Link: "https://i.imgur.com/9o3zJ3c.png",
+  Switchs: "https://i.imgur.com/5K3W4rN.png",
+  Servidores: "https://i.imgur.com/7Q6W0bK.png"
+};
+
+// Logos das empresas
+const companyLogos = {
+  TEXPO: "Texpo.PNG",// Logo Transamerica Expo Center
+  HTIC: "HTIC.PNG" // Logo Transamerica Comandatuba
+};
+
+// Ícones das categorias
+const categoryIcons = {
+  Link: "fas fa-shield-alt",
+  Switchs: "fas fa-network-wired", 
+  Servidores: "fas fa-server"
+};
+
+let lastUpdate = new Date();
+let totalDevices = 0;
+let onlineDevices = 0;
+let offlineDevices = 0;
+
+function updateHeaderStats() {
+  document.getElementById('total-devices').textContent = totalDevices;
+  document.getElementById('online-devices').textContent = onlineDevices;
+  document.getElementById('offline-devices').textContent = offlineDevices;
+}
+
+function createDeviceItem(device, result, tipo) {
+  const isOnline = result && result.alive;
+  const deviceImage = deviceImages[tipo];
+  
+  return `
+    <div class="device-item ${isOnline ? 'online' : 'offline'}">
+      <div class="device-status ${isOnline ? 'online' : 'offline'}"></div>
+     <!-- removido ícone -->
+
+      <div class="device-info">
+        <div class="device-name">${device.name}</div>
+        <div class="device-host">${device.host}</div>
+      </div>
+      <div class="device-metrics">
+        <div class="device-latency ${isOnline ? 'online' : 'offline'}">
+          ${isOnline ? (result.timeMs ? result.timeMs + "ms" : "Online") : "Offline"}
+        </div>
+        <div class="device-timestamp">${new Date().toLocaleTimeString()}</div>
+      </div>
+    </div>
+  `;
+}
+
+function createCategorySection(tipo, devices, results) {
+  const onlineCount = devices.filter(d => {
+    const result = results.find(r => r.host === d.host);
+    return result && result.alive;
+  }).length;
+  
+  const offlineCount = devices.length - onlineCount;
+  
+  const deviceItems = devices.map(device => {
+    const result = results.find(r => r.host === device.host);
+    return createDeviceItem(device, result, tipo);
+  }).join('');
+  
+  return `
+    <div class="category">
+      <div class="category-header">
+        <div class="category-title">
+          <div class="category-icon">
+            <i class="${categoryIcons[tipo]}"></i>
+          </div>
+          ${tipo}
+        </div>
+        <div class="category-stats">
+          <div class="stat-chip online">
+            <i class="fas fa-circle"></i>
+            ${onlineCount}
+          </div>
+          <div class="stat-chip offline">
+            <i class="fas fa-circle"></i>
+            ${offlineCount}
+          </div>
+        </div>
+      </div>
+      <div class="device-list">
+        ${deviceItems}
+      </div>
+    </div>
+  `;
+}
+
+async function check() {
+  document.body.classList.add('loading');
+  
+  // Reset counters
+  totalDevices = 0;
+  onlineDevices = 0;
+  offlineDevices = 0;
+  
+  // Monta lista de todos os hosts
+  const hostsMap = [];
+  for (let emp in empresas) {
+    for (let tipo in empresas[emp]) {
+      empresas[emp][tipo].forEach(d => {
+        hostsMap.push({ ...d, empresa: emp, tipo: tipo });
+        totalDevices++;
+      });
+    }
+  }
+
+  try {
+    const res = await fetch(API, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ hosts: hostsMap.map(h => h.host) })
+    });
+    const data = await res.json();
+
+    // Count online/offline devices
+    data.results.forEach(result => {
+      if (result.alive) {
+        onlineDevices++;
+      } else {
+        offlineDevices++;
+      }
+    });
+
+    // Atualiza o dashboard
+    const container = document.getElementById("dashboard");
+
+// Só cria os cards na primeira vez
+if (container.childElementCount === 0) {
+  for (let emp in empresas) {
+    const companyCard = document.createElement("div");
+    companyCard.className = `company-card company-${emp}`;
+    companyCard.setAttribute("data-empresa", emp);
+    container.appendChild(companyCard);
+  }
+}
+
+// Depois só atualiza o conteúdo dos cards existentes
+for (let emp in empresas) {
+  const companyCard = container.querySelector(`.company-${emp}`);
+  if (companyCard) {
+    const companyDevices = [];
+    let companyOnline = 0;
+    
+    for (let tipo in empresas[emp]) {
+      empresas[emp][tipo].forEach(d => {
+        companyDevices.push(d);
+        const result = data.results.find(r => r.host === d.host);
+        if (result && result.alive) companyOnline++;
+      });
+    }
+
+    const categorySections = Object.keys(empresas[emp]).map(tipo =>
+      createCategorySection(tipo, empresas[emp][tipo], data.results)
+    ).join('');
+
+    companyCard.innerHTML = `
+      <div class="company-header">
+        <div class="company-logo">
+          <img src="${companyLogos[emp]}" alt="${emp}">
+        </div>
+        <div class="company-name">${emp === 'TEXPO' ? 'Transamerica Expo Center' : 'Transamerica Comandatuba'}</div>
+        <div class="company-status">
+          <div class="status-indicator"></div>
+          ${companyOnline}/${companyDevices.length} dispositivos online
+        </div>
+      </div>
+      <div class="device-categories">
+        ${categorySections}
+      </div>
+    `;
+  }
+}
+
+    
+    updateHeaderStats();
+    lastUpdate = new Date();
+    
+  } catch (error) {
+    console.error("Erro ao buscar dados:", error);
+    const container = document.getElementById("dashboard");
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px; color: var(--danger);"></i>
+        <h3 style="margin-bottom: 8px; color: var(--text-primary);">Erro de conexão</h3>
+        <p>Não foi possível conectar ao servidor de monitoramento.</p>
+      </div>
+    `;
+  } finally {
+    document.body.classList.remove('loading');
+  }
+}
+
+// Atualizar a cada 5 segundos
+setInterval(check, 5000);
+
+// Primeira execução
+check();
+
+// Atualizar o footer com informações de tempo
+setInterval(() => {
+  const footer = document.getElementById('last-update');
+  if (footer) {
+    const secondsSinceUpdate = Math.floor((new Date() - lastUpdate) / 1000);
+    const secondsToUpdate = 5 - (secondsSinceUpdate % 5);
+    footer.innerHTML = `Última atualização: ${lastUpdate.toLocaleTimeString()} | Próxima em ${secondsToUpdate}s`;
+  }
+}, 1000);
+</script>
+</body>
+</html>
